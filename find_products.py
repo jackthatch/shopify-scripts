@@ -89,6 +89,12 @@ MAJOR_BRANDS = {
     "bedelite", "cozylux", "moomee", "bare home", "jollyvogue", "evergracehome",
     "love's cabin", "geniani", "yescool", "california design den", "bestouch",
     "mildly", "nexhome",
+    # brands surfaced in the 2026-09-25 full sweep (false "clean" hits)
+    "brita", "ring", "mobil", "valvoline", "hanes", "disney", "hp", "scotch",
+    "texas instruments", "kleenex", "band-aid", "brawny", "angel soft",
+    "liquid i.v.", "lmnt", "lifestraw", "gaiam", "terro", "ortho", "flexzilla",
+    "chapin", "wagner", "catchmaster", "leapfrog", "play-doh", "blink",
+    "cerakote", "m3 music", "dragon shield", "mcgraw", "skechers", "fruit of the loom",
 }
 
 BRAND_RE = re.compile(
