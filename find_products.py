@@ -49,6 +49,8 @@ CATEGORIES = {
     "grocery": "Best-Sellers-Grocery-Gourmet-Food/zgbs/grocery",
     "fashion": "Best-Sellers-Clothing-Shoes-Jewelry/zgbs/fashion",
     "appliances": "Best-Sellers-Appliances/zgbs/appliances",
+    "golf": "Best-Sellers-Sports-Outdoors-Golf/zgbs/sporting-goods/3410851",
+    "furniture": "Best-Sellers-Home-Kitchen-Furniture/zgbs/home-garden/1063306",
 }
 
 # Major brand-owned names. Products from these brands can't be dropshipped
@@ -71,6 +73,9 @@ MAJOR_BRANDS = {
     "crayola", "sharpie", "bic", "post-it", "3m", "dewalt", "milwaukee",
     "makita", "bosch", "ryobi", "craftsman", "kobalt", "irwin", "klein",
     "pampers", "huggies", "johnson's", "aveeno", "gerber", "graco", "chicco",
+    # golf brands
+    "callaway", "taylormade", "titleist", "ping", "cobra", "wilson", "mizuno",
+    "srixon", "bridgestone", "footjoy", "under armour", "flexfit", "wrx", "odyssey",
 }
 
 BRAND_RE = re.compile(
@@ -89,6 +94,10 @@ CONSUMABLE_HINTS = (
     "mascara", "eyeliner", "lip liner", "swab", "cotton round", "antiperspirant",
     "wipes", "pee pad", "potty", "scent", "odor eliminator", "enzyme",
     "mrs. meyer", "refill", "detergent", "dishwasher",
+    # bulky furniture / freight-shipping items
+    "mattress", "bed frame", "topper", "sofa", "couch", "recliner", "dresser",
+    "armoire", "wardrobe", "futon", "bunk bed", "loft bed", "headboard",
+    "nightstand", "bookshelf", "bookcase", "tv stand", "coffee table",
 )
 
 
