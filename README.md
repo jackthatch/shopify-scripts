@@ -1,140 +1,206 @@
 # shopify-scripts
 
-Scripts and tools for an AI-assisted Shopify dropshipping workflow.
+Tools for an AI-assisted Shopify dropshipping workflow. Three scripts form a
+pipeline that goes from **"what's selling" → "what are people searching with
+intent" → "what should I charge (and can I clear a high-ticket floor)".**
 
-## The pipeline
+```
+find_products.py  ──►  search_intent.py  ──►  price_products.py
+   (demand)              (search intent)         (margin / high-ticket)
+```
 
-1. **`find_products.py`** — find candidates (live Amazon Best Sellers demand data)
-2. **`price_products.py`** — price them for margin (live AliExpress source cost)
+They are deliberately **modular and no-auth** — each reads the previous script's
+JSON (or a plain keyword list) so you can run any stage in isolation, and none
+require API keys (just `curl` + network; `search_intent.py` additionally needs
+`pip install pytrends` for the Google Trends signal).
 
-Run them in sequence to go from "what's selling" → "what should I charge":
+---
+
+## Quickstart
 
 ```bash
-# 1. find candidates + save as JSON
-python3 find_products.py --categories golf,furniture --top 12 --json --out candidates.json
+pip install pytrends          # only needed for search_intent.py trends
 
-# 2. price the top candidates against their market price
-python3 price_products.py --from-json candidates.json --limit 10
+# 1. Discover candidates in the high-ticket convergence niche
+python3 find_products.py --categories lighting,lamps,home-decor,storage \
+    --top 20 --json --out candidates.json
+
+# 2. (optional) enrich with search-intent: long-tail queries + 12-mo trend
+python3 search_intent.py --from-json candidates.json --limit 20
+
+# 3a. Classic 3x margin vs. Amazon market price
+python3 price_products.py --from-json candidates.json --limit 20
+
+# 3b. High-ticket (Google Shopping) mode: clear a $49.99 floor at 5–10x
+python3 price_products.py --from-json candidates.json --mode high-ticket --limit 20
 ```
 
 ---
 
-## find_products.py
+## `find_products.py` — demand discovery
 
-AI-assisted dropshipping product finder. Pulls live Amazon Best Sellers data
-(rank, title, ASIN, price, rating, review count) across categories, then applies
-dropshipping filters to surface candidate products worth investigating.
+Pulls **live Amazon Best Sellers** data (rank, title, ASIN, price, rating,
+review count) per category via the `r.jina.ai` reader proxy, then scores each
+product for dropshipping attractiveness.
 
-**What it filters for:**
-- Excludes major brand-owned products (not dropshippable / trademark risk)
-- Down-ranks consumables / heavy / regulated items (litter, food, skincare, etc.)
-- Price sweet-spot band (default $8–$50)
-- Proven demand (review count) with a rating floor (4.0+)
-- Scores generic / shipping-friendly products (keyword-stuffed titles, no strong brand)
+**Scoring (each product annotated with a "Why" column):**
 
-### Usage
+| Signal | Effect |
+|---|---|
+| Price sweet-spot (default $8–50) | +3 / −1 outside band |
+| Rating floor (default 4.0+) | +2 / −3 below |
+| Demand proof (reviews ≥ 500) | +3 / −1 below |
+| Major-brand blocklist hit | −4 (dropship/trademark risk) |
+| Consumable / heavy / regulated | −3 (shipping/regulatory) |
+| Lightweight/shipping-friendly keyword | +1 |
+
+**Usage**
 
 ```bash
-# all default categories, top 15 each
-python3 find_products.py
-
-# specific categories
-python3 find_products.py --categories pets,beauty,kitchen
-
-# tighter filters (higher margin, more demand proof)
-python3 find_products.py --min-price 15 --max-price 45 --min-reviews 1000
-
-# more candidates + JSON output
-python3 find_products.py --top 30 --json
-
-# save to file
-python3 find_products.py --categories kitchen --top 25 --out candidates.md
+python3 find_products.py                          # all categories, top 15 each
+python3 find_products.py --categories lighting,lamps,home-decor
+python3 find_products.py --min-price 15 --max-price 80 --min-reviews 1000
+python3 find_products.py --top 30 --json --out candidates.json
 ```
 
-### Category slugs
+**Category slugs** — full list (see `CATEGORIES` dict in the source for URLs):
 
-`kitchen home beauty health pets sports toys tools baby office auto crafts patio grocery fashion appliances`
+- Broad: `kitchen home beauty health pets sports toys tools baby office auto crafts patio grocery fashion appliances golf`
+- Home/furniture/bedding: `furniture bedding sheets blankets comforters duvet`
+- **Home-goods / lighting / outdoor (the high-ticket convergence niche):**
+  `lighting outdoor-lighting wall-lights lamps home-decor wall-decor storage`
 
-### How it works
-
-Fetches Amazon Best Sellers category pages through the `r.jina.ai` reader proxy
-(which renders to clean Markdown and handles Amazon's gzip/JS), parses the
-product grid, scores each item, and emits a ranked Markdown table or JSON.
-
-Each product's score is annotated with a **"Why"** column so you can see (and
-override) the heuristic's reasoning.
-
-### Requirements
-
-- Python 3.8+
-- `curl` on PATH
-- Network access (uses `https://r.jina.ai/` as a fetch proxy — no API key needed)
-
-### Important caveats
-
-This is a **demand-discovery** tool, not a "winning product" oracle:
-
-- It surfaces **proven demand** (high review counts = sustained sales), *not*
-  rising/trending products. Public best-seller lists are a lagging indicator.
-- The edge is in the checks the script can't do: **margin** (confirm you can
-  clear ~3× markup by finding the landed cost on AliExpress/Alibaba) and
-  **saturation** (how many stores already run it, and can you differentiate).
-- Most $8–13 generic winners need a **bundle / multi-pack angle** to hit the
-  3× margin threshold worth running ads on.
-- `r.jina.ai` rate-limits under rapid requests. The script retries with
-  backoff, but if a run returns an empty table, wait a minute and re-run.
+**Key caveat:** the blocklist (`MAJOR_BRANDS`) is a *best effort* — it will
+occasionally let a major brand through (a false "clean" hit). Always eyeball the
+top rows before trusting them. If a niche is new to you, add its brands to
+`MAJOR_BRANDS` and heavy/bulky terms to `CONSUMABLE_HINTS` first.
 
 ---
 
-## price_products.py
+## `search_intent.py` — the search-intent signal layer
 
-Pricing & margin engine. For each candidate, searches AliExpress for the real
-**source (landed) cost**, then computes what you should charge to hit a target
-margin — and flags whether there's actually room.
+Adds two free, no-auth signals measuring **what people are actually searching
+with intent** (the Google-Shopping premise: the buyer is already searching with
+their wallet out, so winners are products with *active, growing* search demand):
+
+1. **Google Autocomplete** (`suggestqueries.google.com`) — the real long-tail
+   queries people type. Doubles as a ready-made keyword list for SEO titles.
+2. **Google Trends** (`pytrends` `interest_over_time`, 12-month) — classified
+   **RISING / STABLE / DECLINING / SEASONAL**.
+
+**Usage**
 
 ```bash
-# price specific products
+python3 search_intent.py --keywords "outdoor wall light,doormat,placemat"
+python3 search_intent.py --from-json candidates.json --limit 20
+python3 search_intent.py --from-json candidates.json --skip-trends   # autocomplete only
+python3 search_intent.py --keywords "..." --json --out enriched.json
+```
+
+**Output columns:** `intent` (HIGH/MEDIUM/LOW/NONE from suggestion volume),
+`suggestion_count`, `trend` (direction + shape), top `intent_queries`.
+
+> **Note on pytrends:** `trending_searches()` is broken (404 — Google changed
+> the endpoint), but `interest_over_time()` works fine and is what this script
+> uses. From a datacenter IP it can be slow/rate-limited — `--skip-trends`
+> falls back to autocomplete-only if it's being flaky.
+
+---
+
+## `price_products.py` — margin + high-ticket engine
+
+Searches **AliExpress** for the real source (landed) cost of each product, then
+computes the pricing/margin picture. Two modes:
+
+### Classic mode (default) — the "3× rule" vs. Amazon
+
+```bash
 python3 price_products.py --products "golf umbrella,tv wall mount"
-
-# price candidates from the finder (compares to their Amazon market price)
 python3 price_products.py --from-json candidates.json --limit 10
-
-# adjust the margin target
 python3 price_products.py --products "golf umbrella" --markup 4 --shipping 5
 ```
 
-### The margin model
+- retail = landed × `--markup` (default 3.0)
+- At 3×: **gross margin ≈ 64%**, **break-even ROAS ≈ 1.57×**
+- Verdict vs. market: **GOOD** (3× *under* market) / **OK** (~= market) /
+  **THIN** (source too close to market).
 
-| Input | Default | Meaning |
-|---|---|---|
-| `--markup` | 3.0 | retail = landed cost × markup (the "3× rule") |
-| `--fee` | 0.03 | payment-processing fee |
-| `--shipping` | 3.0 | per-item shipping buffer (conservative) |
+### High-ticket mode — the Google-Shopping play
 
-At 3× markup: **gross margin ≈ 64%**, **break-even ROAS ≈ 1.57×** (you need
-$1.57 back per $1 of ad spend to break even — so you can spend up to ~64% of
-revenue on acquisition and still break even).
+```bash
+python3 price_products.py --from-json fixtures.json --mode high-ticket
+python3 price_products.py --products "floor lamp,pendant light" --mode high-ticket \
+    --floor 49.99 --ceiling 250 --markup-lo 5 --markup-hi 10
+```
 
-### The verdict
+The question **flips** from classic mode. Instead of "is 3× under the market
+price?", it asks **"can I clear a `$49.99` minimum at `5–10×` source cost — and
+how far above the Amazon market price is that?"**
 
-The engine compares your 3× price to the product's **market price** (Amazon):
+Verdicts:
 
-- **GOOD** — 3× price is *under* market → room to price up to market and keep full margin
-- **OK** — 3× price ≈ market → viable but no pricing power
-- **THIN** — source too close to market → not enough margin at 3×; find a cheaper supplier or skip
+| Verdict | Meaning |
+|---|---|
+| `HIGH-TICKET ✓ UNDERCUT <1x` | you'd be *below* market — best |
+| `HIGH-TICKET ✓ PREMIUM 1–2x` | defensible premium (better images justify it) |
+| `HIGH-TICKET ✓ AGGRESSIVE >2x` | needs strong brand/images to justify |
+| `LOW-TICKET` | 5× lands below the floor (bundle or skip) |
+| `OVER-PRICED` | 5× exceeds the ceiling |
 
-### Caveats
+**Why this mode exists:** the classic 3× benchmark returns THIN on almost every
+generic item because Amazon already compresses prices near ~2–2.5× source. The
+Google-Shopping / high-ticket play instead charges *more* than Amazon for the
+same product, justified by premium AI-generated images, SEO-optimized titles,
+and buyer intent (searching with wallet out). Lighting fixtures (floor lamps,
+pendants, chandeliers) are the canonical example — source $10–18 → $80–180
+retail naturally clears the floor, whereas $2–6 accessories (doormats, placemats)
+need aggressive 15–20× to clear it.
 
-- **Bait prices:** AliExpress shows a "from $X" price (cheapest variant/accessory).
-  The engine drops sub-$2 bait prices and uses the median of the realistic range.
-- **Variant mismatch:** source cost depends on matching the *exact* spec (size,
-  quality, pack size). The median is a directional estimate — confirm the
-  specific variant before ordering.
-- **"Free shipping"** on AliExpress often already includes the shipping cost in
-  the price; the `--shipping` buffer is a conservative hedge, not double-counting
-  you should treat as gospel.
+---
+
+## Pipelines / recipes
+
+```bash
+# Golf-apparel (the classic 3x winner)
+python3 find_products.py --categories golf --top 30 --json --out golf.json
+python3 price_products.py --from-json golf.json --limit 20
+
+# High-ticket lighting/home-goods (the convergence niche)
+python3 find_products.py --categories lighting,lamps,outdoor-lighting,wall-lights \
+    --top 25 --json --out lighting.json
+python3 search_intent.py --from-json lighting.json --limit 25
+python3 price_products.py --from-json lighting.json --mode high-ticket --limit 25
+```
+
+---
+
+## Requirements
+
+- Python 3.8+
+- `curl` on PATH
+- Network access (uses `https://r.jina.ai/` as a fetch proxy — no key needed)
+- `pip install pytrends` (only for `search_intent.py` trends)
+
+## Pitfalls (hard-won)
+
+- **User-Agent matters for `r.jina.ai`:** a full Chrome UA string returns HTTP
+  403 (tiny ~134-byte page). Use a bare `Mozilla/5.0`. A ~134-byte response is
+  the *403 page (UA problem)*, not rate-limiting.
+- **`r.jina.ai` rate-limits hard.** The scripts retry with backoff + throttle,
+  but if a run returns an empty table, wait a minute and re-run, or run fewer
+  categories.
+- **pytrends `trending_searches()` is 404**; use `interest_over_time()`.
+- **Amazon raw HTML is gzip** — `r.jina.ai` handles it; if you curl Amazon
+  directly, add `--compressed`.
+- **AliExpress "from $X" bait prices** — the engine drops sub-$2 bait and uses
+  the median of the realistic range. Confirm the *exact variant* before ordering.
+- **Category node IDs drift.** The correct Amazon node for "bedding" is
+  `1063252` (not `1063278`, which is *Home Décor*). Lighting lives under
+  `zgbs/hi/` (Tools & Home Improvement), not `home-garden`. Re-derive nodes from
+  the Best Sellers breadcrumb if a category returns the wrong products.
 
 ## Background
 
-Built as part of research into AI-automated Shopify dropshipping. Companion
-methodology documented in `docs/dropship-product-finder.md`.
+Built during research into AI-automated Shopify dropshipping. Strategic context,
+findings, and the decision framework are in **`HANDOFF.md`**; per-niche playbook
+and data-source reconnaissance in the `dropship-product-finder` skill.

@@ -56,6 +56,14 @@ CATEGORIES = {
     "blankets": "Best-Sellers-Home-Kitchen-Blankets-Throws/zgbs/home-garden/1063280",
     "comforters": "Best-Sellers-Home-Kitchen-Bedding-Comforters-Sets/zgbs/home-garden/2224405011",
     "duvet": "Best-Sellers-Home-Kitchen-Bedding-Duvet-Covers-Sets/zgbs/home-garden/21404094011",
+    # home-goods / lighting / outdoor — the "high-ticket Google Shopping" convergence niche
+    "lighting": "Best-Sellers-Tools-Home-Improvement-Lighting-Ceiling-Fans/zgbs/hi/495224",
+    "outdoor-lighting": "Best-Sellers-Tools-Home-Improvement-Outdoor-Lighting-Products/zgbs/hi/495236",
+    "wall-lights": "Best-Sellers-Tools-Home-Improvement-Wall-Light-Fixtures/zgbs/hi/5486429011",
+    "lamps": "Best-Sellers-Tools-Home-Improvement-Lamps-Bases-Shades/zgbs/hi/3736561",
+    "home-decor": "Best-Sellers-Home-Kitchen-Home-Dcor-Products/zgbs/home-garden/1063278",
+    "wall-decor": "Best-Sellers-Home-Kitchen-Wall-Art/zgbs/home-garden/3736081",
+    "storage": "Best-Sellers-Home-Kitchen-Home-Storage-Organization/zgbs/home-garden/3610841",
 }
 
 # Major brand-owned names. Products from these brands can't be dropshipped
