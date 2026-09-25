@@ -51,6 +51,11 @@ CATEGORIES = {
     "appliances": "Best-Sellers-Appliances/zgbs/appliances",
     "golf": "Best-Sellers-Sports-Outdoors-Golf/zgbs/sporting-goods/3410851",
     "furniture": "Best-Sellers-Home-Kitchen-Furniture/zgbs/home-garden/1063306",
+    "bedding": "Best-Sellers-Home-Kitchen-Bedding/zgbs/home-garden/1063252",
+    "sheets": "Best-Sellers-Home-Kitchen-Sheets-Pillowcases/zgbs/home-garden/1063274",
+    "blankets": "Best-Sellers-Home-Kitchen-Blankets-Throws/zgbs/home-garden/1063280",
+    "comforters": "Best-Sellers-Home-Kitchen-Bedding-Comforters-Sets/zgbs/home-garden/2224405011",
+    "duvet": "Best-Sellers-Home-Kitchen-Bedding-Duvet-Covers-Sets/zgbs/home-garden/21404094011",
 }
 
 # Major brand-owned names. Products from these brands can't be dropshipped
@@ -76,6 +81,14 @@ MAJOR_BRANDS = {
     # golf brands
     "callaway", "taylormade", "titleist", "ping", "cobra", "wilson", "mizuno",
     "srixon", "bridgestone", "footjoy", "under armour", "flexfit", "wrx", "odyssey",
+    # bedding brands
+    "mellanni", "bedsure", "utopia", "cgk", "danjor", "elegant comfort",
+    "cosy house", "comfytemp", "bare home", "boll & branch", "brooklinen",
+    "parachute", "casper", "purple", "brookstone", "tempur", "sijo", "quince",
+    "linen & plaid", "nestl", "nectar", "lane linen", "hippie dee",
+    "bedelite", "cozylux", "moomee", "bare home", "jollyvogue", "evergracehome",
+    "love's cabin", "geniani", "yescool", "california design den", "bestouch",
+    "mildly", "nexhome",
 }
 
 BRAND_RE = re.compile(
