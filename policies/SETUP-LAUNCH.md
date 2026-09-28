@@ -17,7 +17,11 @@ In the **Domestic** zone, add TWO rates:
 | Rate name | Price | Condition |
 |---|---|---|
 | Standard | 7.99 | none |
-| Free shipping over $75 | 0.00 | Order total > $75 |
+| Free shipping at $75 or more | 0.00 | Order total **is greater than or equal to** 75 |
+
+The boundary is **inclusive**: $75.00 exactly gets free shipping. In Shopify's rate
+condition builder that is the "is greater than or equal to" operator, not "is greater
+than" - pick the wrong one and a $75.00 order is charged $7.99.
 
 Shopify offers the cheapest rate an order qualifies for, so a $40 order gets the $7.99
 rate and an $80 order gets free shipping. Set a delivery estimate of `7-15 business days`

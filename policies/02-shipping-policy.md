@@ -13,7 +13,7 @@ We currently ship to the **United States only**. If we don't yet ship to your co
 These are estimates from our carriers, not guarantees. Delivery can occasionally take longer during peak periods, holiday seasons or severe weather. Our items are dispatched from several fulfilment locations, so a single order may arrive in more than one parcel and on different days.
 
 ## Shipping costs
-- **Free standard shipping** on US orders of **$75 or more**
+- **Free standard shipping** on US orders of **$75.00 or more** (a $75.00 order qualifies)
 - **$7.99 flat rate** on US orders under $75
 
 Shipping is calculated and shown at checkout before you pay. There are no handling fees and no charges added after your order is placed.
