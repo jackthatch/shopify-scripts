@@ -38,7 +38,9 @@ Paste each file into the matching field:
 - `03-terms-of-service.md` -> Terms of service
 - Privacy policy already exists (Shopify default, 18.3k chars)
 
-Replace the two placeholders before publishing: `hello@sundayform.store` and `[YOUR STATE]`.
+The support email is already set to `hello@sundayform.store` throughout, and the governing-law
+clause is already set to Alabama - **check that Alabama is correct for your LLC/registration
+state before publishing**, and change it if not.
 Shopify also has an "Insert template" button per policy - faster, but generic, and it
 does not reflect 7-15 day fulfilment or a US-only shipping area.
 
