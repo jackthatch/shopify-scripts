@@ -5,7 +5,7 @@
 Orders are processed within **1-2 business days** of being placed. Orders placed at the weekend or on a public holiday are processed on the next business day. You'll receive a confirmation email once your order is on its way.
 
 ## Where we ship
-We currently ship to the **United States only**. If we don't yet ship to your country, email [hello@sundayform.com] and we'll let you know if and when we will.
+We currently ship to the **United States only**. If we don't yet ship to your country, email hello@sundayform.store and we'll let you know if and when we will.
 
 ## Delivery estimates
 - **United States:** 7-15 business days from dispatch
@@ -25,7 +25,7 @@ Where tracking is available, we'll email you a tracking number once your order i
 Please check your address carefully at checkout. We can't redirect an order once it has been dispatched. If a parcel is returned to us as undeliverable because of an incorrect or incomplete address, we'll contact you to arrange redelivery; additional shipping may apply.
 
 ## Lost or delayed parcels
-If tracking shows no movement for **10 business days**, contact us at [hello@sundayform.com] and we'll investigate with the carrier and put things right, either with a replacement or a refund.
+If tracking shows no movement for **10 business days**, contact us at hello@sundayform.store and we'll investigate with the carrier and put things right, either with a replacement or a refund.
 
 ## Contact
-Questions about shipping: [hello@sundayform.com]
+Questions about shipping: hello@sundayform.store

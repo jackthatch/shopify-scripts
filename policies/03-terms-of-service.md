@@ -52,10 +52,10 @@ These terms are effective unless and until terminated by either you or us. You m
 These terms, together with any policies posted on this site, constitute the entire agreement between you and us and govern your use of the service, superseding any prior agreements or understandings.
 
 ## 17. Governing law
-These Terms of Service and any separate agreements whereby we provide you services shall be governed by and construed in accordance with the laws of the State of [YOUR STATE], United States.
+These Terms of Service and any separate agreements whereby we provide you services shall be governed by and construed in accordance with the laws of the State of Alabama, United States.
 
 ## 18. Changes to terms
 You can review the most current version of these terms at any time on this page. We reserve the right to update or change them at our discretion, and it is your responsibility to check for changes. Your continued use of the site after any change constitutes acceptance of that change.
 
 ## 19. Contact
-Questions about these terms: [hello@sundayform.com]
+Questions about these terms: hello@sundayform.store
